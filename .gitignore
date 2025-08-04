@@ -1,0 +1,42 @@
+# R project files
+*.Rproj
+.Rproj.user/
+
+# R history files
+.Rhistory
+.RData
+.Ruserdata
+
+# R package files
+.Rbuildignore
+*.Rcheck/
+.Rcache/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Log or metadata files you may not want
+*.log
+*.aux
+
+# IDE/editor specific
+.vscode/
+.idea/
+*.swp
+
+# If you generate plots or intermediate files
+# *.png
+# *.pdf
+# *.jpg
+# *.jpeg
+# *.svg
+
+# If you have intermediate or large result files
+*.csv~
+*.txt~
+*_summary.txt
+*.summary
+
+# Ignore backups
+*~
