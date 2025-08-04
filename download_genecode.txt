@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# GTF file (GENCODE v48 annotation)
+echo "📥 Downloading GTF..."
+wget -c https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_48/gencode.v48.primary_assembly.annotation.gtf.gz
+
+# FASTA file (GRCh38 primary assembly genome)
+echo "📥 Downloading Genome FASTA..."
+wget -c https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_48/GRCh38.primary_assembly.genome.fa.gz
+
+# Decompress
+echo "🗜️ Decompressing files..."
+gunzip -f gencode.v48.primary_assembly.annotation.gtf.gz
+gunzip -f GRCh38.primary_assembly.genome.fa.gz
+
+echo "✅ All files downloaded and extracted:"
+ls -lh

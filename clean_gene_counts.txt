@@ -1,0 +1,22 @@
+#!/bin/bash
+
+input="gene_counts.txt"
+output="gene_counts_cleaned.txt"
+
+# Skip comment lines starting with '#'
+# Extract the header line starting with "Geneid"
+header_line=$(grep "^Geneid" "$input")
+
+# Remove columns 2-6 (Chr, Start, End, Strand, Length) from header, keep only Geneid + samples
+clean_header=$(echo "$header_line" | cut -f1,7- | sed 's/\.bam//g')
+
+# Extract data lines (skip comment and header lines)
+data_lines=$(grep -v "^#" "$input" | grep -v "^Geneid" | cut -f1,7-)
+
+# Write cleaned file
+{
+  echo -e "$clean_header"
+  echo -e "$data_lines"
+} > "$output"
+
+echo "✅ Cleaned gene counts saved to $output"

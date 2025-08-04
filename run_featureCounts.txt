@@ -1,0 +1,49 @@
+#!/bin/bash -l
+
+#$ -P hybrids                                # SCC project name
+#$ -N featureCounts                          # Job name
+#$ -cwd                                      # Run job in current working directory
+#$ -pe omp 8                                 # Request 8 CPU cores
+#$ -l mem_per_core=4G                        # Memory per core
+#$ -l h_rt=06:00:00                          # Max runtime (adjust as needed)
+#$ -o featurecounts_log/featurecounts.out    # Stdout log file
+#$ -e featurecounts_log/featurecounts.err    # Stderr log file
+
+# Load the subread module (contains featureCounts)
+module load subread/2.0.3
+
+# Path to the GTF annotation file
+gtf="/projectnb/hybrids/tigeryi/gencode.v48.primary_assembly.annotation.gtf"
+
+# Output file (in current folder, or change path if needed)
+output="/projectnb/hybrids/tigeryi/gene_counts.txt"
+
+# Directory containing BAM files
+bam_dir="/projectnb/hybrids/tigeryi/star_bam"
+
+# Create log directory if not present
+mkdir -p featurecounts_log
+
+# Move to BAM file directory to avoid full paths in column names
+cd "$bam_dir"
+
+# Run featureCounts
+featureCounts \
+  -T 8 \
+  -a "$gtf" \
+  -o "$output" \
+  -g gene_id \
+  -t exon \
+  -p \
+  -B \
+  --primary \
+  *.bam
+
+# Final message
+echo "✅ featureCounts completed at $(date)"
+
+# Submit job: 
+# qsub run_featureCounts.txt
+
+# Check job status:
+# qstat -u tigeryi

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# --- INPUT FILES ---
+GENCODE_GTF="gencode.v48.primary_assembly.annotation.gtf"
+ENSEMBL_GTF="Homo_sapiens.GRCh38.114.gtf"
+
+# --- OUTPUT FILES ---
+GENCODE_TMP="gencode_gene_map.tmp"
+ENSEMBL_TMP="ensembl_gene_map.tmp"
+OUTPUT="ensembl_gene_map.csv"
+
+# --- Check GTF files exist ---
+for file in "$GENCODE_GTF" "$ENSEMBL_GTF"; do
+  if [ ! -f "$file" ]; then
+    echo "❌ GTF file not found: $file"
+    exit 1
+  fi
+done
+
+# --- Extract from GENCODE ---
+awk '$3 == "gene"' "$GENCODE_GTF" | \
+  sed -n 's/.*gene_id "\([^"]\+\)".*gene_name "\([^"]\+\)".*/\1,\2/p' | \
+  awk -F',' '{split($1,a,"."); print $1 "," a[1] "," $2}' > "$GENCODE_TMP"
+
+# --- Extract from ENSEMBL ---
+awk '$3 == "gene"' "$ENSEMBL_GTF" | \
+  sed -n 's/.*gene_id "\([^"]\+\)".*gene_name "\([^"]\+\)".*/\1,\2/p' | \
+  awk -F',' '{split($1,a,"."); print $1 "," a[1] "," $2}' > "$ENSEMBL_TMP"
+
+# --- Build merged map ---
+awk -F',' '
+  FNR==NR {
+    ensembl_name[$2] = $3        # CleanGeneID -> GeneName
+    ensembl_full[$2] = $1 "," $2 "," $3
+    next
+  }
+  FNR==1 {
+    print "GeneID,CleanGeneID,GeneName"
+    next
+  }
+  {
+    gene_id = $1
+    clean_id = $2
+    gene_name = $3
+
+    seen[clean_id] = 1  # Track CleanGeneIDs seen in GENCODE
+
+    if (gene_name == clean_id && (clean_id in ensembl_name)) {
+      gene_name = ensembl_name[clean_id]
+    }
+
+    print gene_id "," clean_id "," gene_name
+  }
+  END {
+    # Append genes only in Ensembl
+    for (id in ensembl_full) {
+      if (!(id in seen)) {
+        print ensembl_full[id]
+      }
+    }
+  }
+' "$ENSEMBL_TMP" "$GENCODE_TMP" > "$OUTPUT"
+
+# --- Cleanup ---
+rm "$GENCODE_TMP" "$ENSEMBL_TMP"
+
+echo "✅ Final merged gene map saved to: $OUTPUT"
+head -n 10 "$OUTPUT"

@@ -1,0 +1,27 @@
+#!/bin/bash -l
+
+#$ -P hybrids   
+#$ -N star_index
+#$ -cwd
+#$ -pe omp 24
+#$ -l mem_per_core=2G
+#$ -l h_rt=08:00:00
+#$ -o star_index_log/star_index.out
+#$ -e star_index_log/star_index.err
+
+# Load the STAR module
+module load star/2.7.10b
+
+# Build the STAR genome index
+STAR --runThreadN 24 \
+     --runMode genomeGenerate \
+     --genomeDir STAR_index_v48/ \
+     --genomeFastaFiles GRCh38.primary_assembly.genome.fa \
+     --sjdbGTFfile gencode.v48.primary_assembly.annotation.gtf \
+     --sjdbOverhang 149
+
+# Submit job: 
+# qsub build_star_index.txt
+
+# Check status: 
+# qstat -u tigeryi

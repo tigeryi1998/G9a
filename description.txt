@@ -1,0 +1,9 @@
+Sample | Description                      | First Exon (FE) | Exon 10  | Expected G9a (EHMT2) Expression               
+-------|----------------------------------|------------------|----------|-----------------------------------------------
+KO     | Knockout (mixed isoforms)        | Mixed            | Mixed    | Moderate – heterogeneous expression           
+KO1    | Knockout, short FE, + E10        | Short            | Included | High – long isoform lost, but still some G9a  
+KO2    | Knockout, short FE, – E10        | Short            | Skipped  | Medium – further loss of isoform              
+KO3    | Knockout, long FE, + E10         | Long             | Included | Highest – mimics cancer-promoting isoform     
+KO4    | Knockout, long FE, – E10         | Long             | Skipped  | High/moderate - Partial suppression                                 
+WT     | Wild type                        | Mixed            | Mixed    | Low baseline                                  
+WT+M   | Morpholino-treated (E10 skipped) | Likely Short     | Skipped  | Lowest - suppression of cancer isoform        

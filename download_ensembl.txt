@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Download Ensembl GTF (Ensembl release 114)
+wget https://ftp.ensembl.org/pub/release-114/gtf/homo_sapiens/Homo_sapiens.GRCh38.114.gtf.gz
+
+# Uncompress
+gunzip Homo_sapiens.GRCh38.114.gtf.gz
+
+echo "✅ Downloaded and extracted Homo_sapiens.GRCh38.114.gtf"

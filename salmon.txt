@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Path to input FASTQ files
+input_dir="/projectnb/hybrids/G9a_RNA_seq/Analisys_RNA-seq/Fastq/trimmed/"
+
+# Path to output directory for Salmon results
+salmon_output_dir="/projectnb/hybrids/G9a_RNA_seq/Analisys_RNA-seq/Fastq/trimmed/salmon_quant/"
+
+# Path to the Salmon index (AQUÍ verifica que esta ruta sea correcta!)
+salmon_index="/projectnb/encore/Yun/salmon_index/genecode_v43_all_protein_coding_transcripts.index"
+
+# Create the output directory for Salmon if it doesn't exist
+mkdir -p "${salmon_output_dir}"
+
+# Loop over all R1 files
+for R1_file in "${input_dir}"/*R1.trimmed.fastq.gz; do
+
+    # Extract the sample base name
+    base=$(basename "${R1_file}" _R1.trimmed.fastq.gz)
+
+    # Define R2 file path
+    R2_file="${input_dir}/${base}_R2.trimmed.fastq.gz"
+
+    # Define output folder for this sample
+    salmon_sample_output="${salmon_output_dir}/${base}_quant"
+
+    # Run Salmon quantification
+    salmon quant -i "${salmon_index}" \
+                 -l A \
+                 -1 "${R1_file}" \
+                 -2 "${R2_file}" \
+                 -p 8 \
+                 -o "${salmon_sample_output}" \
+                 --seqBias \
+                 --gcBias \
+                 --validateMappings
+
+    echo "Finished Salmon quantification for ${base}."
+
+done
+

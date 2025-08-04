@@ -1,0 +1,17 @@
+sample,condition,replicate
+KO-0-1,KO,1
+KO-0-2,KO,2
+KO-1-1,KO-1,1
+KO-1-2,KO-1,2
+KO-2-1,KO-2,1
+KO-2-2,KO-2,2
+KO-3-1,KO-3,1
+KO-3-2,KO-3,2
+KO-4-1,KO-4,1
+KO-4-2,KO-4,2
+WT-1,WT,1
+WT-2,WT,2
+WT-3,WT,3
+WTPosM-1,WT+M,1
+WTPosM-2,WT+M,2
+WTPosM-3,WT+M,3

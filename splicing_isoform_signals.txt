@@ -1,0 +1,74 @@
+
+Interpreting Splicing or Isoform-Level Signals
+=============================================
+
+What is "splicing" or "isoform-level signals"?
+----------------------------------------------
+Genes like EHMT2 (G9a) can produce multiple isoforms (alternative versions of mRNA) through:
+- Alternative transcription start sites (e.g., long vs short first exon, or FE)
+- Alternative splicing (e.g., inclusion or exclusion of exon 10)
+
+So even if total gene expression stays constant, specific isoforms can shift dramatically,
+and those can be biologically important — as in your case.
+
+What does it mean in your data?
+-------------------------------
+In your knockout design:
+
+| Condition | Design                                   | Expected Splicing Effect                     |
+|----------|-------------------------------------------|----------------------------------------------|
+| KO1      | Short FE, + Exon 10                      | High expression of cancer-promoting isoform  |
+| KO2      | Short FE, – Exon 10                      | Loss of cancer isoform (some suppression)    |
+| KO3      | Long FE, + Exon 10                       | Highest isoform promoting cancer             |
+| KO4      | Long FE, – Exon 10                       | Partial suppression                          |
+| WT+M     | Morpholino blocks Exon 10                | Suppressed cancer isoform                    |
+
+So:
+- Gene-level DE (what you're seeing now) might show big fold changes.
+- But it’s possible that isoform-level or exon-level analysis would give even richer resolution 
+  (e.g., confirming exon 10 is skipped in WT+M).
+
+How to explore isoform/splicing signals?
+----------------------------------------
+
+1. Transcript-level quantification tools
+----------------------------------------
+Instead of raw gene counts, use pseudoaligners to estimate isoform-level expression:
+
+- Salmon or kallisto
+  - They quantify individual isoforms (transcripts)
+  - Input: FASTQ files + reference transcriptome (e.g., GENCODE .fa + .gtf)
+- Then use tximport to bring this into DESeq2 or limma
+
+2. Exon-level or junction-level analysis
+----------------------------------------
+Use tools like:
+- DEXSeq: Detects differential exon usage (splicing)
+- rMATS: Focuses on splicing events (e.g., skipped exon, retained intron)
+- MAJIQ / SUPPA: Model local splicing variations
+
+These will tell you:
+- Is exon 10 really skipped in WT+M?
+- Is long FE used more in KO3 than KO2?
+
+3. Visualization
+----------------
+- Use IGV to visualize BAMs + GTF and visually see exon 10 being skipped
+- Use Sashimi plots (from ggsashimi or rmats2sashimi) to view junction reads
+- plotCounts(dds, gene = "ENSG00000204371.12", intgroup = "condition") shows gene-level signal,
+  but exon-level views can uncover more
+
+Takeaway
+--------
+Right now you’ve shown gene-level DE, which already shows big fold changes. But:
+- If your hypothesis is about exon 10 or FE inclusion, then splicing analysis can directly confirm it.
+- Especially useful to validate what each KO line is actually doing at the isoform level.
+
+
+Let me know if you’d like a step-by-step to do:
+
+Salmon quantification,
+
+DEXSeq setup, or
+
+Sashimi plots for visual splicing validation.

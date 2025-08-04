@@ -1,0 +1,64 @@
+#!/bin/bash -l
+
+#$ -P hybrids
+#$ -N star_align
+#$ -cwd
+#$ -pe omp 24
+#$ -l mem_per_core=2G
+#$ -l h_rt=12:00:00
+#$ -o star_align.out
+#$ -e star_align.err
+
+# Load required modules
+module load star/2.7.10b
+module load samtools/1.21
+
+# Set input and output directories
+input_dir="/projectnb/hybrids/G9a_RNA_seq/Analisys_RNA-seq/Fastq/trimmed"
+output_dir="/projectnb/hybrids/tigeryi/star_bam"
+genome_dir="/projectnb/hybrids/tigeryi/STAR_index_v48"
+
+# Create output directory if it doesn't exist
+mkdir -p "${output_dir}"
+
+# Loop through all paired-end FASTQ files
+for fastq_file_1 in "${input_dir}"/*_R1.trimmed.fastq.gz; do
+    fastq_file_2="${fastq_file_1/_R1.trimmed.fastq.gz/_R2.trimmed.fastq.gz}"
+
+    if [[ -f "${fastq_file_2}" ]]; then
+        base=$(basename "${fastq_file_1}" _R1.trimmed.fastq.gz)
+        output_prefix="${output_dir}/${base}"
+        bam_file="${output_prefix}.bam"
+        bam_index="${bam_file}.bai"
+
+        if [[ -f "${bam_file}" && -f "${bam_index}" ]]; then
+            echo "Skipping ${base}, BAM and index already exist."
+            continue
+        fi
+
+        echo "Aligning ${base}..."
+
+        STAR --runThreadN 24 \
+             --genomeDir "${genome_dir}" \
+             --readFilesIn "${fastq_file_1}" "${fastq_file_2}" \
+             --readFilesCommand zcat \
+             --outFilterType BySJout \
+             --outFileNamePrefix "${output_prefix}" \
+             --outSAMtype BAM SortedByCoordinate
+
+        samtools index "${bam_file}"
+
+        echo "Finished processing ${base}"
+    else
+        echo "R2 not found for ${fastq_file_1}, skipping."
+    fi
+done
+
+echo "✅ All samples aligned and indexed"
+
+
+# Submit job: 
+# qsub run_star_alignment.txt
+
+# Check status: 
+# qstat -u tigeryi

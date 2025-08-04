@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Path to your GTF file
+GTF_FILE="gencode.v48.primary_assembly.annotation.gtf"
+
+# Output file
+OUTPUT="ensembl_gene_map.csv"
+
+# Check GTF exists
+if [ ! -f "$GTF_FILE" ]; then
+  echo "❌ GTF file not found: $GTF_FILE"
+  exit 1
+fi
+
+# Add header
+echo "GeneID,CleanGeneID,GeneName" > "$OUTPUT"
+
+# Extract gene_id and gene_name, then clean the version suffix
+awk '$3 == "gene"' "$GTF_FILE" | \
+  sed -n 's/.*gene_id "\([^"]\+\)".*gene_name "\([^"]\+\)".*/\1,\2/p' | \
+  awk -F',' '{split($1,a,"."); print $1 "," a[1] "," $2}' >> "$OUTPUT"
+
+echo "✅ Gene mapping saved to: $OUTPUT"
+head -n 5 "$OUTPUT"
+

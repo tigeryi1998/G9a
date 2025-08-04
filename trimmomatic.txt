@@ -1,0 +1,38 @@
+#!/bin/bash
+# Define paths
+DATA_DIR="/projectnb/hybrids/G9a_RNA_seq/Analisys_RNA-seq/Fastq"
+OUTPUT_DIR="$DATA_DIR/trimmed"
+TRIMMOMATIC_JAR_PATH="/share/pkg.7/trimmomatic/0.39/install/trimmomatic-0.39.jar"
+ADAPTER_FILE_PATH="/share/pkg.7/trimmomatic/0.39/install/adapters/TruSeq3-PE.fa"
+# Create output directory if it doesn't exist
+mkdir -p $OUTPUT_DIR
+# Loop through all R1 fastq.gz files in the data directory note your file format and if they are compressed
+for INPUT_FILE1 in $DATA_DIR/*_R1.fastq.gz
+    do
+    # Define the corresponding R2 file
+    INPUT_FILE2="${INPUT_FILE1/_R1.fastq.gz/_R2.fastq.gz}"
+    # Extract the base name (without _1.fastq.gz) for output file naming
+    base_name=$(basename $INPUT_FILE1 _R1.fastq.gz)
+    # Define output file names for paired and unpaired reads
+    OUTPUT_FILE1="$OUTPUT_DIR/${base_name}_R1.trimmed.fastq.gz"
+    OUTPUT_FILE2="$OUTPUT_DIR/${base_name}_R2.trimmed.fastq.gz"
+    # Check if trimmed files already exist, and skip if they do
+    if [[ -f "$OUTPUT_FILE1" && -f "$OUTPUT_FILE2" ]]; then
+        echo "Skipping $base_name, already trimmed."
+        continue
+    fi
+    # Run Trimmomatic for this file pair
+    java -jar $TRIMMOMATIC_JAR_PATH \
+        PE \
+        -phred33 \
+        $INPUT_FILE1 \
+        $INPUT_FILE2 \
+        $OUTPUT_FILE1 \
+        $OUTPUT_FILE1.unpaired.fastq \
+        $OUTPUT_FILE2 \
+        $OUTPUT_FILE2.unpaired.fastq \
+        ILLUMINACLIP:$ADAPTER_FILE_PATH:2:30:7 \
+        MINLEN:15
+        # Print a message to indicate the completion of processing for this pair
+    echo "Finished processing $base_name"
+done

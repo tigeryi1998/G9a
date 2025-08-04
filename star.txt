@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Directorios
+input_dir="/projectnb/hybrids/G9a_RNA_seq/Analisys_RNA-seq/Fastq/trimmed/" #FASTQ directory
+output_dir="/projectnb/hybrids/G9a_RNA_seq/Analisys_RNA-seq/Fastq/trimmed/star_bam/" #BAN output directory 
+genome_dir="/projectnb/encore/STAR/hg38" #STAR genome index directory
+
+# Crear carpeta de salida si no existe
+mkdir -p "${output_dir}"
+
+# Bucle sobre todos los archivos R1
+for fastq_file_1 in "${input_dir}"/*_R1.trimmed.fastq.gz; do
+
+    # Buscar el archivo R2 correspondiente
+    fastq_file_2="${fastq_file_1/_R1.trimmed.fastq.gz/_R2.trimmed.fastq.gz}"
+
+    # Verificar que el R2 exista
+    if [[ -f "${fastq_file_2}" ]]; then
+
+        # Obtener el nombre base de la muestra
+        base=$(basename "${fastq_file_1}" _R1.trimmed.fastq.gz)
+
+        # Definir ruta de salida
+        output_prefix="${output_dir}/${base}_"
+        bam_file="${output_prefix}Aligned.sortedByCoord.out.bam"
+        bam_index="${bam_file}.bai"
+
+        # Si ya existen los archivos BAM e índice, los salta
+        if [[ -f "${bam_file}" && -f "${bam_index}" ]]; then
+            echo "Skipping ${base}, BAM file already exists."
+            continue
+        fi
+
+        # Ejecutar STAR
+        STAR --runThreadN 16 \
+             --genomeDir "${genome_dir}" \
+             --readFilesIn "${fastq_file_1}" "${fastq_file_2}" \
+             --readFilesCommand zcat \
+             --outFilterType BySJout \
+             --outFileNamePrefix "${output_prefix}" \
+             --outSAMtype BAM SortedByCoordinate
+
+        # Indexar BAM
+        samtools index "${bam_file}"
+
+        echo "Processed and indexed ${base}"
+
+    else
+        echo "R2 pair not found for ${fastq_file_1}. Skipping."
+    fi
+
+done
+
+echo "All paired-end FASTQ.gz files have been aligned and indexed"

@@ -1,0 +1,67 @@
+#!/bin/bash -l
+
+#$ -P hybrids
+#$ -N star_array
+#$ -cwd
+#$ -pe omp 24
+#$ -l mem_per_core=2G
+#$ -l h_rt=08:00:00
+#$ -t 1-16
+#$ -o star_array_log/star_array_$TASK_ID.out
+#$ -e star_array_log/star_array_$TASK_ID.err
+
+# Load required modules
+module load star/2.7.10b
+module load samtools/1.21
+
+# Set input and output directories
+input_dir="/projectnb/hybrids/G9a_RNA_seq/Analisys_RNA-seq/Fastq/trimmed"
+output_dir="/projectnb/hybrids/tigeryi/star_bam"
+genome_dir="/projectnb/hybrids/tigeryi/STAR_index_v48"
+sample_list="/projectnb/hybrids/tigeryi/samples.txt"
+
+# Get the sample name based on array task ID
+sample=$(sed -n "${SGE_TASK_ID}p" "${sample_list}")
+
+# Check for valid sample
+if [[ -z "${sample}" ]]; then
+    echo "No sample name found for SGE_TASK_ID=${SGE_TASK_ID}. Check samples.txt"
+    exit 1
+fi
+
+# Create output directory if it doesn't exist
+mkdir -p "${output_dir}"
+
+# Paired FASTQ files
+fastq_file_1="${input_dir}/${sample}_R1.trimmed.fastq.gz"
+fastq_file_2="${input_dir}/${sample}_R2.trimmed.fastq.gz"
+output_prefix="${output_dir}/${sample}"
+bam_file="${output_prefix}.bam"
+
+# Skip if already done
+if [[ -f "${bam_file}" ]]; then
+    echo "Skipping ${sample}, already processed."
+    exit 0
+fi
+
+# Align
+echo "Processing ${sample}..."
+
+STAR --runThreadN 24 \
+     --genomeDir "${genome_dir}" \
+     --readFilesIn "${fastq_file_1}" "${fastq_file_2}" \
+     --readFilesCommand zcat \
+     --outFilterType BySJout \
+     --outFileNamePrefix "${output_prefix}" \
+     --outSAMtype BAM SortedByCoordinate
+
+# Index BAM file
+samtools index "${bam_file}"
+
+echo "✅ Finished ${sample}"
+
+# Submit job: 
+# qsub run_star_array.txt
+
+# Check job status:
+# qstat -u tigeryi

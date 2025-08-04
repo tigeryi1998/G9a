@@ -1,0 +1,69 @@
+Signature,Gene
+MammaPrint (70 genes - selection),BIRC5
+MammaPrint (70 genes - selection),CCNB1
+MammaPrint (70 genes - selection),CDC6
+MammaPrint (70 genes - selection),CDCA1
+MammaPrint (70 genes - selection),CENPA
+MammaPrint (70 genes - selection),E2F3
+MammaPrint (70 genes - selection),MELK
+MammaPrint (70 genes - selection),MKI67
+MammaPrint (70 genes - selection),MCM6
+MammaPrint (70 genes - selection),NDC80
+MammaPrint (70 genes - selection),MMP9
+MammaPrint (70 genes - selection),CTSL2
+MammaPrint (70 genes - selection),PLAU
+MammaPrint (70 genes - selection),STK6
+MammaPrint (70 genes - selection),AURKA
+MammaPrint (70 genes - selection),GPR180
+MammaPrint (70 genes - selection),ESM1
+MammaPrint (70 genes - selection),MYBL2
+MammaPrint (70 genes - selection),ORC6L
+MammaPrint (70 genes - selection),RFC4
+PAM50 (50 genes),MKI67
+PAM50 (50 genes),CCNB1
+PAM50 (50 genes),CDC20
+PAM50 (50 genes),MYBL2
+PAM50 (50 genes),BIRC5
+PAM50 (50 genes),ESR1
+PAM50 (50 genes),PGR
+PAM50 (50 genes),BCL2
+PAM50 (50 genes),FOXA1
+PAM50 (50 genes),GATA3
+PAM50 (50 genes),ERBB2
+PAM50 (50 genes),GRB7
+PAM50 (50 genes),KRT5
+PAM50 (50 genes),KRT14
+PAM50 (50 genes),MIA
+PAM50 (50 genes),FOXC1
+6-gene RS signature,C15orf52
+6-gene RS signature,C1orf228
+6-gene RS signature,CEL
+6-gene RS signature,FUZ
+6-gene RS signature,PAK6
+6-gene RS signature,SIRPG
+12-gene prognostic signature,CDCA5
+12-gene prognostic signature,CENPA
+12-gene prognostic signature,CENPN
+12-gene prognostic signature,DLGAP5
+12-gene prognostic signature,FAM83D
+12-gene prognostic signature,KIF4A
+12-gene prognostic signature,KIF15
+12-gene prognostic signature,KIF20A
+12-gene prognostic signature,MELK
+12-gene prognostic signature,NDC80
+12-gene prognostic signature,TPX2
+12-gene prognostic signature,UBE2C
+9-gene prognostic signature,CDKN3
+9-gene prognostic signature,CDC20
+9-gene prognostic signature,KIF4A
+9-gene prognostic signature,TPX2
+9-gene prognostic signature,CCNB2
+9-gene prognostic signature,MCM10
+9-gene prognostic signature,RRM2
+9-gene prognostic signature,NEK2
+9-gene prognostic signature,UBE2C
+5-gene FG signature,SFRP1
+5-gene FG signature,SAA1
+5-gene FG signature,RBP4
+5-gene FG signature,KIF4A
+5-gene FG signature,COL11A1
