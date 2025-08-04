@@ -1,7 +1,7 @@
-# EHMT2 (G9a) Breast Cancer Isoform Differential Expression Analysis
+# EHMT2 (G9a) Breast Cancer Isoforms Differential Gene Expression Analysis
 
 
-## Structure of G9a project
+## Structure of G9a project folder
 
 ```
 G9a/
@@ -45,3 +45,4 @@ G9a/
 ├── .gitignore
 ├── DE.R                 # R script for differential gene expression analysis
 ```
+
