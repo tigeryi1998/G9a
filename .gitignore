@@ -45,6 +45,7 @@ Thumbs.db
 *.fastq
 *.fq
 *.bam
+*.bai
 *.sam
 *.gtf
 *.fa
