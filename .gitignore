@@ -40,3 +40,16 @@ Thumbs.db
 
 # Ignore backups
 *~
+
+# Large raw data (if any slipped in)
+*.fastq
+*.fq
+*.bam
+*.sam
+*.gtf
+*.fa
+*.fasta
+*.gz
+*.bz2
+*.zip
+
