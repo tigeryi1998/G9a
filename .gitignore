@@ -6,6 +6,7 @@
 .Rhistory
 .RData
 .Ruserdata
+*.rds
 
 # R package files
 .Rbuildignore
@@ -24,6 +25,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# temporary files
+tmp/
 
 # If you generate plots or intermediate files
 # *.png
@@ -53,4 +57,9 @@ Thumbs.db
 *.gz
 *.bz2
 *.zip
+*.h5
+*.arrow
+*.tbi 
+*.qs
+*.rds
 
