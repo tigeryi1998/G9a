@@ -1,7 +1,4 @@
-# G9a
-
-## EHMT2 (G9a) Breast Cancer Isoforms Differential Gene Expression Analysis
-
+# G9a EHMT2 Breast Cancer Isoforms Differential Gene Expression Analysis
 
 ## Structure of G9a project folder
 
