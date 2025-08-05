@@ -647,15 +647,15 @@ rescue_signature <- rescue(signature_list,
                        query_log2fc_threshold = 0.5,
                        key_log2fc_threshold = 0.5,
                        padj_threshold = 0.05,
-                       is_query_down = FALSE,  # TRUE if query wants negative log2fc
-                       is_key_down = TRUE    # FALSE if key wants positive log2fc
+                       is_query_down = TRUE,  # TRUE if query wants negative log2fc
+                       is_key_down = FALSE    # FALSE if key wants positive log2fc
 )
 
 print(rescue_signature, row.names = FALSE)
 
-# write.csv(rescue_genes, file = "results/signature-down-up.csv", row.names = FALSE)
+write.csv(rescue_signature, file = "results/signature-down-up.csv", row.names = FALSE)
 
-write.csv(rescue_genes, file = "results/signature-up-down.csv", row.names = FALSE)
+# write.csv(rescue_signature, file = "results/signature-up-down.csv", row.names = FALSE)
 
 
 
