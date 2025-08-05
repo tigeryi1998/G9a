@@ -3,24 +3,35 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 BiocManager::install("DESeq2")
 
-# Load DESeq2 library
+# Load library
 library(DESeq2)
 
 library(dplyr)
 
 library(tidyr)
 
+library(circlize)
+
+library(ggplot2)
+
+library(ggrepel)
+
+library(pheatmap)
+
+library(ComplexHeatmap)
+
+
 # 1. Read counts matrix (tab-delimited)
-counts <- read.table("gene_counts_cleaned.txt", header = TRUE, row.names = 1, sep = "\t", check.names = FALSE)
+counts <- read.table("data/gene_counts_cleaned.txt", header = TRUE, row.names = 1, sep = "\t", check.names = FALSE)
 
 # 2. Read metadata (CSV)
-meta <- read.csv("metadata.csv", header = TRUE, stringsAsFactors = FALSE)
+meta <- read.csv("data/metadata.csv", header = TRUE, stringsAsFactors = FALSE)
 
 # 3. Reorder metadata rows to match count columns
 # meta <- meta[match(colnames(counts), meta$sample), ]
 
 # 3. Load gene map table, GeneID - GeneName
-gene_map <- read.csv("ensembl_gene_map.csv", stringsAsFactors = FALSE)
+gene_map <- read.csv("data/ensembl_gene_map.csv", stringsAsFactors = FALSE)
 
 
 # Check that sample names match exactly
@@ -58,13 +69,7 @@ dds <- DESeq(dds)
 # KO isoforms vs each other reveal detailed differences between isoforms.
 
 contrasts <- list(
-  M_vs_WT    = c("condition", "WT+M", "WT"),   # Morpholino vs WT
   KO_vs_WT   = c("condition", "KO", "WT"),     # KO vs WT
-  
-  KO1_vs_WT  = c("condition", "KO-1", "WT"), # short FE, +E10
-  KO2_vs_WT  = c("condition", "KO-2", "WT"), # short FE, -E10
-  KO3_vs_WT  = c("condition", "KO-3", "WT"), # long FE, +E10
-  KO4_vs_WT  = c("condition", "KO-4", "WT"), # long FE, -E10
   
   KO1_vs_KO  = c("condition", "KO-1", "KO"), # short FE, +E10
   KO2_vs_KO  = c("condition", "KO-2", "KO"), # short FE, -E10
@@ -75,7 +80,9 @@ contrasts <- list(
   KO3_vs_KO4 = c("condition", "KO-3", "KO-4"), # +E10 vs -E10, long FE
   
   KO1_vs_KO3 = c("condition", "KO-1", "KO-3"), # short vs long FE, +E10
-  KO2_vs_KO4 = c("condition", "KO-2", "KO-4") # short vs long FE, -E10
+  KO2_vs_KO4 = c("condition", "KO-2", "KO-4"), # short vs long FE, -E10
+  
+  M_vs_WT    = c("condition", "WT+M", "WT")   # Morpholino vs WT
 )
 
 
@@ -100,13 +107,15 @@ lfc_viz <- lfc_results
 lfc_viz[is.na(lfc_viz)] <- 1e-300
 
 # Create output directory if it doesn't exist
-output_dir <- "DE_CSV"
+output_dir <- "results/DE_CSV"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir)
 }
 
 # 10. Save results as CSV
-write.csv(lfc_viz, file = file.path(output_dir, "DE_log2FC.csv"), row.names = FALSE)
+write.csv(lfc_results, file = file.path(output_dir, "DE_log2FC.csv"), row.names = FALSE)
+
+
 
 
 
@@ -135,6 +144,8 @@ for (name in names(contrasts)) {
   df <- df[, c("GeneID", "GeneName", "log2FC", "padj", "neg_log_padj")]
   full_results[[name]] <- df
 }
+
+
 
 
 # 12. Filter for significant genes
@@ -166,24 +177,20 @@ for (name in names(full_results)) {
 ## EHMT2 
 ## ENSG00000204371.12
 
-
 ## KO1 > KO3 > KO4 > KO2 > KO > WT > WT+M
 
 counts(dds)["ENSG00000204371.12", ]
-# KO-0-1   KO-0-2   KO-1-1   KO-1-2   KO-2-1   KO-2-2   KO-3-1   KO-3-2   KO-4-1   KO-4-2     WT-1     WT-2 
-# 7266     5066  1156775  1196388   768695   617530   978497   907427   646337   786207     7152     5915 
-# WT-3 WTPosM-1 WTPosM-2 WTPosM-3 
-# 4941     3474     3736     3057 
 
 
 ## KO1 > KO3 > KO2 > KO4 > KO > WT > WT+M
 
 lfc_results[lfc_results$GeneName == "EHMT2", ]
 
-#                   GeneID GeneName    M_vs_WT  KO_vs_WT KO1_vs_WT KO2_vs_WT KO3_vs_WT KO4_vs_WT KO1_vs_KO KO2_vs_KO
-# 15852 ENSG00000204371.12    EHMT2 -0.6117749 0.3314718  7.947728  7.531955  7.733433  7.416948  7.616257  7.200484
-#         KO3_vs_KO KO4_vs_KO KO1_vs_KO2 KO3_vs_KO4 KO1_vs_KO3 KO2_vs_KO4
-# 15852  7.401961  7.085476  0.4157729  0.3164852  0.2142955  0.1150078
+#                   GeneID GeneName  KO_vs_WT KO1_vs_KO KO2_vs_KO KO3_vs_KO KO4_vs_KO KO1_vs_KO2 KO3_vs_KO4 KO1_vs_KO3
+# 15852 ENSG00000204371.12    EHMT2 0.3314718  7.616257  7.200484  7.401961  7.085476  0.4157729  0.3164852  0.2142955
+#       KO2_vs_KO4    M_vs_WT
+# 15852  0.1150078 -0.6117749
+
 
 
 
@@ -204,7 +211,7 @@ gg <- ggplot(p1, aes(x = condition, y = count)) +
 
 
 # Display plot
-ggsave("EHMT2_counts.png", gg, width = 6, height = 4, dpi = 300)
+ggsave("figures/EHMT2_counts.png", gg, width = 6, height = 4, dpi = 300)
 
 
 
@@ -236,7 +243,10 @@ gg2 <- ggplot(ehmt2_long, aes(x = reorder(Comparison, log2FC), y = log2FC, fill 
 
 
 # Display plot
-ggsave("EHMT2_log2FC.png", gg2, width = 6, height = 4, dpi = 300)
+ggsave("figures/EHMT2_log2FC.png", gg2, width = 6, height = 4, dpi = 300)
+
+
+
 
 
 
@@ -266,11 +276,13 @@ gg3 <- ggcorrplot(cor_mat,
 
 
 
-# signature genes
 
-signature_genes <- read.csv("signatures.csv")
+# signature genes of breast cancer
+
+signature_genes <- read.csv("data/signatures.csv")
 
 signature_genes_name <- unique(signature_genes$Gene)
+
 
 
 
@@ -304,7 +316,7 @@ gg4 <- pheatmap::pheatmap(lfc_mat,
                 color = colorRampPalette(c("blue", "white", "red"))(100),
                 breaks = seq(-5, 5, length.out = 101),  # symmetric color scale around 0
                 main = "Heatmap of log2 Fold Changes (EHMT2 + Top 10 Variable Genes)",
-                filename = "Heatmap_log2FC.png",     # ✅ Save directly here
+                filename = "figures/Heatmap_log2FC.png",     # ✅ Save directly here
                 width = 10,
                 height = 15
                 )
@@ -360,7 +372,7 @@ ht <- Heatmap(
 )
 
 # Save to file
-png("Heatmap_log2FC_ComplexHeatmap.png", width = 1000, height = 1200, res = 150)
+png("figures/Heatmap_log2FC_ComplexHeatmap.png", width = 1000, height = 1200, res = 150)
 draw(ht)
 dev.off()
 
@@ -375,7 +387,7 @@ dev.off()
 library(ggplot2)
 library(ggrepel)
 
-plot_volcano <- function(df, contrast_name, label_genes = "EHMT2", output_dir = "volcano_plots", N=30) {
+plot_volcano <- function(df, contrast_name, label_genes = "EHMT2", output_dir = "figures/volcano_plots", N=30) {
   dir.create(output_dir, showWarnings = FALSE)
   
   # Filter valid rows
@@ -442,14 +454,18 @@ plot_volcano <- function(df, contrast_name, label_genes = "EHMT2", output_dir = 
 }
 
 
+
+
 # Loop through and plot all relevant contrasts
+
+genes_to_label <- unique(c("EHMT2", signature_genes_name))
 
 top_genes_by_contrast <- list()
 
 for (name in names(full_results)) {
   df <- full_results[[name]]
-  top_genes <- plot_volcano(df, contrast_name = name, label_genes = "EHMT2", N=50)
-  top_genes_by_contrast[[name]] <- top_genes
+  top_genes_df <- plot_volcano(df, contrast_name = name, label_genes = genes_to_label, N=1)
+  top_genes_by_contrast[[name]] <- top_genes_df
 }
 
 
@@ -518,7 +534,7 @@ print(get_gene_ranks("EHMT2", full_results))
 
 
 
-# KO vs WT down, then up in KO# vs KO
+# KO vs WT is down / up, then in KO# vs KO is up / down
 
 rescue <- function(
     full_results,
@@ -588,8 +604,8 @@ rescue <- function(
 rescue_genes <- rescue(full_results,
                        query = "KO_vs_WT",
                        keys = c("KO1_vs_KO", "KO2_vs_KO", "KO3_vs_KO", "KO4_vs_KO"),
-                       query_log2fc_threshold = 5.0,
-                       key_log2fc_threshold = 5.0,
+                       query_log2fc_threshold = 4.0,
+                       key_log2fc_threshold = 4.0,
                        padj_threshold = 0.05,
                        is_query_down = TRUE,  # TRUE if query wants negative log2fc
                        is_key_down = FALSE    # FALSE if key wants positive log2fc
@@ -597,7 +613,14 @@ rescue_genes <- rescue(full_results,
 
 print(rescue_genes, row.names = FALSE)
 
-write.csv(rescue_genes, file = "rescue.csv", row.names = FALSE)
+write.csv(rescue_genes, file = "results/rescue-down-up.csv", row.names = FALSE)
+
+# write.csv(rescue_genes, file = "results/rescue-up-down.csv", row.names = FALSE)
+
+
+
+
+
 
 
 
@@ -605,7 +628,7 @@ write.csv(rescue_genes, file = "rescue.csv", row.names = FALSE)
 
 # signature genes
 
-signature_genes <- read.csv("signatures.csv")
+signature_genes <- read.csv("data/signatures.csv")
 
 signature_genes_name <- unique(signature_genes$Gene)
 
@@ -617,16 +640,26 @@ signature_list <- lapply(full_results, function(df) {
 
 
 
+
 rescue_signature <- rescue(signature_list,
                        query = "KO_vs_WT",
                        keys = c("KO1_vs_KO", "KO2_vs_KO", "KO3_vs_KO", "KO4_vs_KO"),
                        query_log2fc_threshold = 0.5,
                        key_log2fc_threshold = 0.5,
                        padj_threshold = 0.05,
-                       is_query_down = TRUE,  # TRUE if query wants negative log2fc
-                       is_key_down = FALSE    # FALSE if key wants positive log2fc
+                       is_query_down = FALSE,  # TRUE if query wants negative log2fc
+                       is_key_down = TRUE    # FALSE if key wants positive log2fc
 )
 
 print(rescue_signature, row.names = FALSE)
+
+# write.csv(rescue_genes, file = "results/signature-down-up.csv", row.names = FALSE)
+
+write.csv(rescue_genes, file = "results/signature-up-down.csv", row.names = FALSE)
+
+
+
+
+
 
 
