@@ -1,0 +1,41 @@
+#!/bin/bash -l
+
+#$ -P hybrids
+#$ -N gsl_build
+#$ -cwd
+#$ -pe omp 8
+#$ -l mem_per_core=2G
+#$ -l h_rt=08:00:00
+#$ -o gsl_build_log/gsl_build.out
+#$ -e gsl_build_log/gsl_build.err
+
+# Load compiler module
+module load gcc/13.2.0
+
+# Set installation directory in your project
+INSTALL_DIR="/projectnb/hybrids/tigeryi/gsl-2.7"
+
+# Make sure log directories exist
+mkdir -p gsl_build_log
+
+# Download GSL if not already present
+if [ ! -f gsl-2.7.tar.gz ]; then
+    wget https://ftp.gnu.org/gnu/gsl/gsl-2.7.tar.gz
+fi
+
+# Extract and build
+tar xvf gsl-2.7.tar.gz
+cd gsl-2.7
+
+# Configure to install in project directory
+./configure --prefix="$INSTALL_DIR"
+
+# Build using requested cores
+make -j $NSLOTS
+make install
+
+echo "GSL 2.7 installed in $INSTALL_DIR"
+
+# Export paths for use in other jobs
+echo "export PATH=$INSTALL_DIR/bin:\$PATH"
+echo "export LD_LIBRARY_PATH=$INSTALL_DIR/lib:\$LD_LIBRARY_PATH"

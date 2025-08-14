@@ -1,0 +1,144 @@
+#!/bin/bash -l
+#$ -P hybrids
+#$ -N rmats_array
+#$ -cwd
+#$ -pe omp 8
+#$ -l mem_per_core=6G
+#$ -l h_rt=8:00:00
+#$ -t 1-10
+#$ -o rmats_logs/rmats_${JOB_ID}_${SGE_TASK_ID}.out
+#$ -e rmats_logs/rmats_${JOB_ID}_${SGE_TASK_ID}.err
+
+# ----------------------------
+# Load modules
+# ----------------------------
+module load gcc/13.2.0
+module load samtools/1.21
+module load subread/2.0.3
+module load miniconda
+
+# ----------------------------
+# Add custom GSL 2.7 paths if not already present
+# ----------------------------
+case ":$PATH:" in
+  *":/projectnb/hybrids/tigeryi/gsl-2.7/bin:"*) ;;
+  *) export PATH=/projectnb/hybrids/tigeryi/gsl-2.7/bin:$PATH ;;
+esac
+
+case ":$LD_LIBRARY_PATH:" in
+  *":/projectnb/hybrids/tigeryi/gsl-2.7/lib:"*) ;;
+  *) export LD_LIBRARY_PATH=/projectnb/hybrids/tigeryi/gsl-2.7/lib:$LD_LIBRARY_PATH ;;
+esac
+
+echo "Initial PATH: $PATH"
+echo "Initial LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+
+# ----------------------------
+# Activate conda environment
+# ----------------------------
+conda activate /projectnb/hybrids/tigeryi/rmats-turbo/conda_envs/rmats
+
+# Quick sanity check: confirm python and rmats module
+echo "Using Python: $(which python)"
+echo "Python version: $(python --version)"
+
+# Re-apply GSL paths after conda activate (avoid duplicates)
+case ":$PATH:" in
+  *":/projectnb/hybrids/tigeryi/gsl-2.7/bin:"*) ;;
+  *) export PATH=/projectnb/hybrids/tigeryi/gsl-2.7/bin:$PATH ;;
+esac
+
+case ":$LD_LIBRARY_PATH:" in
+  *":/projectnb/hybrids/tigeryi/gsl-2.7/lib:"*) ;;
+  *) export LD_LIBRARY_PATH=/projectnb/hybrids/tigeryi/gsl-2.7/lib:$LD_LIBRARY_PATH ;;
+esac
+
+echo "After conda activate:"
+echo "PATH: $PATH"
+echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+
+
+# ----------------------------
+# Sanity check: rMATSexe can find GSL
+# ----------------------------
+echo "Sanity check: rMATSexe GSL linkage"
+ldd /projectnb/hybrids/tigeryi/rmats-turbo/rMATS_C/rMATSexe | grep gsl
+
+# Fail immediately if libgsl.so.25 is not found
+if ! ldd /projectnb/hybrids/tigeryi/rmats-turbo/rMATS_C/rMATSexe | grep -q "libgsl.so.25"; then
+    echo "ERROR: libgsl.so.25 not found for rMATSexe. Check LD_LIBRARY_PATH."
+    exit 1
+fi
+
+
+# ----------------------------
+# Variables
+# ----------------------------
+BAM_LIST_DIR="/projectnb/hybrids/tigeryi/rmats_bam_lists"
+OUT_BASE="/projectnb/hybrids/tigeryi/rmats_results"
+TMP_BASE="/projectnb/hybrids/tigeryi/rmats_tmp"
+RMATS_PY="/projectnb/hybrids/tigeryi/rmats-turbo/rmats.py"
+CONTRAST_FILE="/projectnb/hybrids/tigeryi/contrasts.txt"
+GTF="/projectnb/hybrids/tigeryi/gencode.v48.primary_assembly.annotation.gtf"
+READ_LENGTH=150
+THREADS=8
+LIB_TYPE="fr-unstranded"
+
+
+# ----------------------------
+# Determine contrast
+# ----------------------------
+CONTRAST=$(sed -n "${SGE_TASK_ID}p" ${CONTRAST_FILE})
+
+# Safety check: make sure CONTRAST is not empty
+if [[ -z "${CONTRAST}" ]]; then
+    echo "ERROR: No contrast found for SGE_TASK_ID=${SGE_TASK_ID} in ${CONTRAST_FILE}"
+    exit 1
+fi
+
+B1_FILE="${BAM_LIST_DIR}/b1_${CONTRAST}.txt"
+B2_FILE="${BAM_LIST_DIR}/b2_${CONTRAST}.txt"
+
+if [[ ! -f "${B1_FILE}" || ! -f "${B2_FILE}" ]]; then
+  echo "ERROR: BAM list files missing for contrast ${CONTRAST}"
+  exit 1
+fi
+
+
+OUT_DIR="${OUT_BASE}/${CONTRAST}"
+TMP_DIR="${TMP_BASE}/${CONTRAST}"
+
+# ----------------------------
+# Prepare directories
+# ----------------------------
+rm -rf "${OUT_DIR}" "${TMP_DIR}"
+mkdir -p "${OUT_DIR}" "${TMP_DIR}"
+
+
+
+# ----------------------------
+# Run rMATS
+# ----------------------------
+echo "Running rMATS for contrast: ${CONTRAST}"
+python ${RMATS_PY} \
+  --b1 "${B1_FILE}" \
+  --b2 "${B2_FILE}" \
+  --gtf "${GTF}" \
+  --od "${OUT_DIR}" \
+  --tmp "${TMP_DIR}" \
+  --readLength ${READ_LENGTH} \
+  --nthread ${THREADS} \
+  --libType ${LIB_TYPE}
+
+echo "rMATS done for ${CONTRAST}"
+
+
+
+# ----------------------------
+# Job Submission to SCC
+# ----------------------------
+
+# qsub run_rmats_array.txt
+
+# qstat -u tigeryi
+

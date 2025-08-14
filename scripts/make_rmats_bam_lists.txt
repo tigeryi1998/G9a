@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# paths
+BAM_DIR="/projectnb/hybrids/tigeryi/star_bam"
+OUT_DIR="/projectnb/hybrids/tigeryi/rmats_bam_lists"
+META="/projectnb/hybrids/tigeryi/metadata.csv"
+
+mkdir -p "$OUT_DIR"
+
+# contrasts: name group1 group2
+declare -a CONTRASTS=(
+  "KO_vs_WT KO WT"
+  "KO1_vs_KO KO-1 KO"
+  "KO2_vs_KO KO-2 KO"
+  "KO3_vs_KO KO-3 KO"
+  "KO4_vs_KO KO-4 KO"
+  "KO1_vs_KO2 KO-1 KO-2"
+  "KO3_vs_KO4 KO-3 KO-4"
+  "KO1_vs_KO3 KO-1 KO-3"
+  "KO2_vs_KO4 KO-2 KO-4"
+  "M_vs_WT WT+M WT"
+)
+
+for entry in "${CONTRASTS[@]}"; do
+  set -- $entry
+  cname=$1
+  g1=$2
+  g2=$3
+
+  # get BAMs for group1
+  b1_list=$(awk -F, -v cond="$g1" -v bamdir="$BAM_DIR" '
+    NR>1 && $2==cond {print bamdir "/" $1 ".bam"}
+  ' "$META" | paste -sd "," -)
+
+  # get BAMs for group2
+  b2_list=$(awk -F, -v cond="$g2" -v bamdir="$BAM_DIR" '
+    NR>1 && $2==cond {print bamdir "/" $1 ".bam"}
+  ' "$META" | paste -sd "," -)
+
+  # save to files
+  echo "$b1_list" > "$OUT_DIR/b1_${cname}.txt"
+  echo "$b2_list" > "$OUT_DIR/b2_${cname}.txt"
+  echo "Created: b1_${cname}.txt and b2_${cname}.txt"
+done

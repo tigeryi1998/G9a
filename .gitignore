@@ -28,6 +28,7 @@ Thumbs.db
 
 # temporary files
 tmp/
+rmats_tmp/
 
 # If you generate plots or intermediate files
 # *.png
@@ -62,4 +63,8 @@ tmp/
 *.tbi 
 *.qs
 *.rds
+
+# output errors
+*.out
+*.err 
 

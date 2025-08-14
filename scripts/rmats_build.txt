@@ -1,0 +1,41 @@
+#!/bin/bash -l
+
+#$ -P hybrids   
+#$ -N rmats_build
+#$ -cwd
+#$ -pe omp 24
+#$ -l mem_per_core=2G
+#$ -l h_rt=02:00:00
+#$ -o rmats_build_log/rmats_build.out
+#$ -e rmats_build_log/rmats_build.err
+
+
+# Load modules
+module purge
+module load miniconda/24.5.0
+module load gcc/13.2.0
+module load git
+
+# Add your custom GSL paths
+export PATH=/projectnb/hybrids/tigeryi/gsl-2.7/bin:$PATH
+export LD_LIBRARY_PATH=/projectnb/hybrids/tigeryi/gsl-2.7/lib:$LD_LIBRARY_PATH
+
+# Clone if not exist
+if [ ! -d rmats-turbo ]; then
+  git clone https://github.com/Xinglab/rmats-turbo.git
+fi
+
+cd rmats-turbo
+
+
+# Run build with conda env creation, no paired/darts
+./build_rmats --conda 
+
+
+# Submit job: 
+# qsub rmats_build.txt
+
+
+# Check status: 
+# qstat -u tigeryi
+
