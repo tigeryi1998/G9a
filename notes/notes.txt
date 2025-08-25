@@ -496,3 +496,47 @@ All 36 genes
 
 
 
+
+
+
+
+
+
+
+
+| GeneName | KO\_vs\_WT | KO1\_vs\_KO | KO2\_vs\_KO | KO3\_vs\_KO | KO4\_vs\_KO | Breast Cancer Relevance | Function                                                      | Rescue Effect                                             |
+| -------- | ---------- | ----------- | ----------- | ----------- | ----------- | ----------------------- | ------------------------------------------------------------- | --------------------------------------------------------- |
+| AURKA    | 1.134475   | -1.3223282  | -1.2898586  | -1.3670584  | -1.2156566  | High                    | Aurora kinase, regulates mitosis and centrosome separation    | Strong rescue (isoforms reduce KO-induced overexpression) |
+| FAM83D   | 1.246193   | -1.2196827  | -1.1821336  | -1.3653781  | -1.2847458  | Moderate                | Promotes mitotic spindle formation and cell cycle progression | Strong rescue                                             |
+| KIF20A   | 1.801371   | -1.3544022  | -1.4124385  | -1.4322691  | -1.3251963  | High                    | Kinesin motor protein, cytokinesis and proliferation          | Strong rescue                                             |
+| CENPA    | 1.505602   | -1.1901036  | -1.2376746  | -1.3492164  | -1.1201799  | High                    | Centromere protein, essential for chromosome segregation      | Strong rescue                                             |
+| CDC20    | 1.173708   | -0.7487832  | -0.7682232  | -0.8740434  | -0.7455549  | Moderate                | Activator of APC/C complex, drives mitosis                    | Moderate rescue                                           |
+| DLGAP5   | 1.576825   | -1.5593609  | -1.5466311  | -1.6138743  | -1.4459539  | Moderate to High        | Spindle-associated protein, involved in mitosis               | Strong rescue                                             |
+| CCNB1    | 1.260061   | -1.0336644  | -0.9853948  | -1.0478979  | -0.9596304  | High                    | Cyclin B1, controls G2/M cell cycle transition                | Moderate rescue                                           |
+| CCNB2    | 1.220873   | -1.0962125  | -1.0052886  | -1.1773298  | -1.0800754  | High                    | Cyclin B2, regulates G2/M transition                          | Moderate rescue                                           |
+| CEL      | -0.752565  | NA          | NA          | 0.601072    | NA          | Low                     | Carboxyl ester lipase, involved in metabolic regulation       | Partial / unclear                                         |
+
+
+
+| Gene       | Type          | Canonical Role                                |
+| ---------- | ------------- | --------------------------------------------- |
+| **NDC80**  | Oncogene      | Mitotic spindle; high in many cancers         |
+| **PGR**    | Mixed         | Progesterone receptor; context-specific       |
+| **AURKA**  | Oncogene      | Mitotic kinase; highly oncogenic              |
+| **TPX2**   | Oncogene      | Promotes mitosis; overexpressed in cancers    |
+| **KIF4A**  | Oncogene      | Chromosome segregation                        |
+| **CDKN3**  | Oncogene      | Promotes cell cycle in cancers                |
+| **FAM83D** | Oncogene      | Regulates mitotic spindle                     |
+| **KIF20A** | Oncogene      | Proliferation-related kinesin                 |
+| **CENPA**  | Oncogene      | Centromere protein A; overexpressed in tumors |
+| **CDC20**  | Oncogene      | Cell cycle progression                        |
+| **NEK2**   | Oncogene      | Mitotic regulation                            |
+| **DLGAP5** | Oncogene      | Mitotic spindle                               |
+| **CCNB1**  | Oncogene      | Cyclin B1; key in G2/M                        |
+| **MKI67**  | Proliferation | Proliferation marker                          |
+| **CCNB2**  | Oncogene      | Cyclin B2                                     |
+| **BCL2**   | Oncogene      | Anti-apoptotic                                |
+| **UBE2C**  | Oncogene      | Ubiquitination; cell cycle                    |
+
+
+
